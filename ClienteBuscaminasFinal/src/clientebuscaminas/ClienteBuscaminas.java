@@ -136,7 +136,7 @@ public class ClienteBuscaminas extends JFrame {
                 } else if (linea.startsWith("NOMINA ")) {
                     tam = linea.substring(7).split(",");
                     if (tam.length == 2) {
-                        juego.noMina(convertirInt(tam[0]), convertirInt(tam[1]));
+                        juego.ponerNoMina(convertirInt(tam[0]), convertirInt(tam[1]));
                     } else {
                         getMensaje("Error al poner mina");
                     }

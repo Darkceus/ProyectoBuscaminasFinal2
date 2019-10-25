@@ -134,7 +134,7 @@ public class TableroJuego extends JPanel {
         }
     }
 
-    public void noMina(int x, int y) {
+    public void ponerNoMina(int x, int y) {
         BOTONES[x][y].setIcon(IMAGENES[NO_MINA]);
     }
 
