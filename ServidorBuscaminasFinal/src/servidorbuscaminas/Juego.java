@@ -300,7 +300,7 @@ public class Juego {
                         campo.hacerVisible();
                         sala.agregarPerdedor(jugador);
                         sala.enviarInfo("HAYMINA " + x + "," + y + "," + jugador.getID());
-                        sala.enviarInfo("MESSAGE " + jugador.getNombre() + " ha perdido");
+                        sala.enviarInfo("MESSAGE [Servidor] " + jugador.getNombre() + " ha perdido");
                     } else if (campo.comprobarVacio()) {
                         revelarPerimetro(jugador, campo);
                     }
