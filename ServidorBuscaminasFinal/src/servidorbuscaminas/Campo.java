@@ -5,12 +5,7 @@ package servidorbuscaminas;
  * @author DARKCEUS
  */
 public class Campo {
-    public static final int VALOR_VACIO = 0;
-    public static final int VALOR_MINA = 9;
-    public static final int ESTADO_INICIAL = 0;
-    public static final int ESTADO_APLASTADO = 1;
-    public static final int ESTADO_BANDERA = 2;
-    public static final int ESTADO_BANDERA_NO_MINA = 3;
+    
     private Jugador Admin;
     private int X = 0;
     private int Y = 0;
@@ -26,32 +21,12 @@ public class Campo {
         return this.X;
     }
 
-    public void setX(int X) {
-        this.X = X;
-    }
-
     public int getY() {
         return this.Y;
     }
 
-    public void setY(int y) {
-        this.Y = y;
-    }
-
     public int getValor() {
         return Valor;
-    }
-
-    public void setValor(int Valor) {
-        this.Valor = Valor;
-    }
-
-    public int getEstado() {
-        return Estado;
-    }
-
-    public void setEstado(int Estado) {
-        this.Estado = Estado;
     }
 
     public Jugador getAdmin() {
@@ -71,23 +46,23 @@ public class Campo {
     }
     
     public boolean comprobarVacio(){
-        return getValor() == Campo.VALOR_VACIO;
+        return getValor() == Constantes.CAMPO_VALOR_VACIO.getValor();
     }
     
     public void colocarMina(){
-        this.Valor = Campo.VALOR_MINA;
+        this.Valor = Constantes.CAMPO_VALOR_MINA.getValor();
     }
     
     public void colocarBandera(){
-        this.Estado = Campo.ESTADO_BANDERA;
+        this.Estado = Constantes.CAMPO_ESTADO_BANDERA.getValor();
     }
     
     public boolean comprobarMina(){
-        return Valor == Campo.VALOR_MINA;
+        return Valor == Constantes.CAMPO_VALOR_MINA.getValor();
     }
     
     public boolean comprobarBandera(){
-        return Estado == Campo.ESTADO_BANDERA;
+        return Estado == Constantes.CAMPO_ESTADO_BANDERA.getValor();
     }
     
     public void aumentarValor(){
@@ -95,26 +70,26 @@ public class Campo {
     }
     
     public boolean comprobarVisible(){
-        return Estado == Campo.ESTADO_APLASTADO;
+        return Estado == Constantes.CAMPO_ESTADO_APLASTADO.getValor();
     }
     
     public boolean comprobarOculto(){
-        return Estado == Campo.ESTADO_INICIAL;
+        return Estado == Constantes.CAMPO_ESTADO_INICIAL.getValor();
     }
     
     public boolean comprobarValorValido(){
-        return (Valor > Campo.VALOR_VACIO && Valor < Campo.VALOR_MINA);
+        return (Valor > Constantes.CAMPO_VALOR_VACIO.getValor() && Valor < Constantes.CAMPO_VALOR_MINA.getValor());
     }
     
     public void ponerBanderaIncorrecta(){
-        this.Estado = Campo.ESTADO_BANDERA_NO_MINA;
+        this.Estado = Constantes.CAMPO_ESTADO_BANDERA_NO_MINA.getValor();
     }
     
     public void hacerVisible(){
-        this.Estado = Campo.ESTADO_APLASTADO;
+        this.Estado = Constantes.CAMPO_ESTADO_APLASTADO.getValor();
     }
     
     public void ocultar(){
-        this.Estado = Campo.ESTADO_INICIAL;
+        this.Estado = Constantes.CAMPO_ESTADO_INICIAL.getValor();
     }
 }

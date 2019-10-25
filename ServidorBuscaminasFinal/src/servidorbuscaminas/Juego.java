@@ -10,11 +10,11 @@ import java.util.Collections;
  */
 public class Juego {
 
-    public static final int FILAS = 20;
-    public static final int COLUMNAS = 20;
-    public static final int TAM_ALTO = 20;
-    public static final int TAM_ANCHO = 20;
-    public static final int NUMERO_MINAS = 20;
+    private final int FILAS = 20;
+    private final int COLUMNAS = 20;
+    private final int TAM_ALTO = 20;
+    private final int TAM_ANCHO = 20;
+    private final int NUMERO_MINAS = 20;
     private int limpiarTablero;
     private final Campo[][] TABLERO;
     private final ArrayList<Campo> listaMinas;
@@ -50,6 +50,26 @@ public class Juego {
         checarPerimetro();
         imprimirInfo();
         iniciarTiempo();
+    }
+
+    public int getFILAS() {
+        return FILAS;
+    }
+
+    public int getCOLUMNAS() {
+        return COLUMNAS;
+    }
+
+    public int getTAM_ALTO() {
+        return TAM_ALTO;
+    }
+
+    public int getTAM_ANCHO() {
+        return TAM_ANCHO;
+    }
+
+    public int getNUMERO_MINAS() {
+        return NUMERO_MINAS;
     }
     
     private void iniciarTiempo() {
@@ -105,8 +125,8 @@ public class Juego {
         return (int) (Math.random() * num);
     }
     
-    private boolean comprobarLimites(int x2, int y2){
-        return (x2 > NUM_X[0] && x2 < Juego.FILAS) && (y2 > NUM_Y[0] && y2 < Juego.COLUMNAS);
+    private boolean comprobarLimites(int x, int y){
+        return (x > NUM_X[0] && x < FILAS) && (y > NUM_Y[0] && y < COLUMNAS);
     }
 
     private void colocarMinas() {
@@ -136,16 +156,31 @@ public class Juego {
         System.out.println(contarMinas);
     }
     
+    private int getX(int i, Campo campo){
+        return NUM_X[i] + campo.getX();
+    }
+    
+    private int getY(int i, Campo campo){
+        return NUM_Y[i] + campo.getY();
+    }
+    
+    private Campo getCampo(int x, int y){
+        if (comprobarLimites(x, y)) {
+            return TABLERO[x][y];
+        }
+        return null;
+    }
+    
     private void checarPerimetro() {
         int x2;
         int y2;
         Campo campo;
         for (Campo campo2 : this.listaMinas) {
             for (int i = 0; i < 8; i++) {
-                x2 = NUM_X[i] + campo2.getX();
-                y2 = NUM_Y[i] + campo2.getY();
+                x2 = getX(i, campo2);
+                y2 = getY(i, campo2);
                 if (comprobarLimites(x2, y2)) {
-                    campo = TABLERO[x2][y2];
+                    campo = getCampo(x2, y2);
                     if (!campo.comprobarMina()) {
                         campo.aumentarValor();
                     }
@@ -160,10 +195,10 @@ public class Juego {
         Campo campo;
         System.out.println("Se agregó mina X:" + campo2.getX() + ", Y:" + campo2.getY());
         for (int i = 0; i < 8; i++) {
-            x2 = NUM_X[i] + campo2.getX();
-            y2 = NUM_Y[i] + campo2.getY();
+            x2 = getX(i, campo2);
+            y2 = getY(i, campo2);
             if (comprobarLimites(x2, y2)) {
-                campo = TABLERO[x2][y2];
+                campo = getCampo(x2, y2);
                 if (!campo.comprobarMina()) {
                     campo.aumentarValor();
                     if (campo.comprobarVisible()) {
@@ -186,23 +221,31 @@ public class Juego {
         }
     }
     
-    private int checarEspacio() {
+    private void agregarMina(){
         Campo campo;
-        for (int j = 0; j < Juego.COLUMNAS; j++) {
-            for (int i = 0; i < Juego.FILAS; i++) {
-                campo = TABLERO[i][j];
+        for (int j = 0; j < COLUMNAS; j++) {
+            for (int i = 0; i < FILAS; i++) {
+                campo = getCampo(i, j);
                 if (campo.comprobarOculto() && campo.comprobarValorValido()) {
                     listaDisponibles.add(campo);
                 }
             }
         }
+    }
+    
+    private int colocarMina(){
+        int numeroRandom = obtenerRandom(listaDisponibles.size());
+        listaDisponibles.get(numeroRandom).colocarMina();
+        listaMinas.add(listaDisponibles.get(numeroRandom));
+        return numeroRandom;
+    }
+    
+    private int checarEspacio() {
+        agregarMina();
         if (listaDisponibles.isEmpty()) {
             return -1;
         }
-        int random = obtenerRandom(listaDisponibles.size());
-        listaDisponibles.get(random).colocarMina();
-        listaMinas.add(listaDisponibles.get(random));
-        return random;
+        return colocarMina();
     }
     
     private boolean checarClic(Jugador jugador, Campo campo) {
@@ -214,13 +257,13 @@ public class Juego {
             jugador.darClic();
             return true;
         }
-        if (jugador.getID() == 1 && !esquina) {
+        if (jugador.checarJ1() && !esquina) {
             jugador.getPW().println("INFOMESSAGE Debes iniciar por la Izquierda");
-        } else if (jugador.getID() == 2 && !esquina) {
+        } else if (jugador.checarJ2() && !esquina) {
             jugador.getPW().println("INFOMESSAGE Debes iniciar por la Derecha");
-        } else if (jugador.getID() == 3 && !esquina) {
+        } else if (jugador.checarJ3() && !esquina) {
             jugador.getPW().println("INFOMESSAGE Debes iniciar por la Arriba");
-        } else if (jugador.getID() == 4 && !esquina) {
+        } else if (jugador.checarJ4() && !esquina) {
             jugador.getPW().println("INFOMESSAGE Debes iniciar por la Abajo");
         }
         return false;
@@ -232,7 +275,7 @@ public class Juego {
             case 1: {
                 tam = COLUMNAS;
                 for (int i = 0; i < tam; i++) {
-                    if (TABLERO[0][i].getEstado() == Campo.ESTADO_INICIAL) {
+                    if (getCampo(0, i).comprobarOculto()) {
                         return true;
                     }
                 }
@@ -240,9 +283,10 @@ public class Juego {
             }
             case 2: {
                 tam = COLUMNAS;
-                int info = (Juego.FILAS - 1);
+                int info = (FILAS - 1);
                 for (int i = 0; i < tam; i++) {
-                    if (TABLERO[info][i].getEstado() == Campo.ESTADO_INICIAL) {
+                    
+                    if (getCampo(info, i).comprobarOculto()) {
                         return true;
                     }
                 }
@@ -251,7 +295,7 @@ public class Juego {
             case 3: {
                 tam = FILAS;
                 for (int i = 0; i < tam; i++) {
-                    if (TABLERO[i][0].getEstado() == Campo.ESTADO_INICIAL) {
+                    if (getCampo(i, 0).comprobarOculto()) {
                         return true;
                     }
                 }
@@ -259,9 +303,9 @@ public class Juego {
             }
             case 4: {
                 tam = FILAS;
-                int info = (Juego.COLUMNAS - 1);
+                int info = (COLUMNAS - 1);
                 for (int i = 0; i < tam; i++) {
-                    if (TABLERO[i][info].getEstado() == Campo.ESTADO_INICIAL) {
+                    if (getCampo(i, info).comprobarOculto()) {
                         return true;
                     }
                 }
@@ -272,21 +316,23 @@ public class Juego {
     }
     
     private boolean checarEsquina(Jugador jugador, Campo campo) {
-        if (jugador.getID() == 1 && (campo.getX() == 0 || !checar(jugador))) {
+        if (jugador.checarJ1() && (campo.getX() == 0 || !checar(jugador))) {
             return true;
-        } else if (jugador.getID() == 2 && (campo.getX() == (Juego.FILAS - 1) || !checar(jugador))) {
+        } else if (jugador.checarJ2() && (campo.getX() == (FILAS - 1) || !checar(jugador))) {
             return true;
-        } else if (jugador.getID() == 3 && (campo.getY() == 0 || !checar(jugador))) {
+        } else if (jugador.checarJ3() && (campo.getY() == 0 || !checar(jugador))) {
             return true;
-        } else if (jugador.getID() == 4 && (campo.getY() == (Juego.COLUMNAS - 1) || !checar(jugador))) {
+        } else if (jugador.checarJ4() && (campo.getY() == (COLUMNAS - 1) || !checar(jugador))) {
             return true;
         }
         return false;
     }
     
+    
+    
     public void descubrirCampo(Jugador jugador, int x, int y) {
-        if (sala.getIniciado() && jugador.continuarJugando()) {
-            Campo campo = TABLERO[x][y];
+        if (sala.getIniciado() && jugador.verificarSigueJugando()) {
+            Campo campo = getCampo(x, y);
             if (checarClic(jugador, campo)) {
                 if (campo.comprobarOculto()/* || (!campo.getAdmin().equals(jugador) && campo.getEstado() == Campo.ESTADO_BANDERA)*/) {
                     campo.hacerVisible();
@@ -305,9 +351,7 @@ public class Juego {
                         revelarPerimetro(jugador, campo);
                     }
                 }
-                if (inicio) {
-                    checarMinas();
-                }
+                checarMinas();
             }
         } else {
             jugador.getPW().println("INFOMESSAGE Ya perdiste, no puedes jugar");
@@ -337,7 +381,7 @@ public class Juego {
     }
     
     public void gestionarBandera(Jugador jugador, int x, int y, int minasRes) {
-        if (sala.getIniciado() && jugador.continuarJugando()) {
+        if (sala.getIniciado() && jugador.verificarSigueJugando()) {
             Campo campo = TABLERO[x][y];
             if (campo.comprobarOculto() && minasRes > 0) {
                 if (checarClic(jugador, campo)) {
@@ -345,11 +389,9 @@ public class Juego {
                     campo.setAdmin(jugador);
                     jugador.agregarBandera(campo);
                     sala.enviarInfo("PONERBANDERA " + x + "," + y + "," + jugador.getID());
-                    if (inicio) {
-                        checarMinas();
-                    }
+                    checarMinas();
                 }
-            } else if (campo.comprobarBandera() && campo.getAdmin().equals(jugador)) {
+            } else if (campo.comprobarBandera() && campo.comprobarAdmin(jugador)) {
                 campo.ocultar();
                 campo.setAdmin(jugador);
                 jugador.quitarBandera(campo);
@@ -360,7 +402,18 @@ public class Juego {
         }
     }
     
+    private void actualizarDatos(){
+        limpiarTablero = (FILAS * COLUMNAS) - listaMinas.size();
+    }
+    
+    private boolean verificarCamposVisibles(){
+        return camposVisibles == limpiarTablero;
+    }
+    
     public void checarMinas() {
+        if (!inicio) {
+            return;
+        }
         boolean checarMinas = true;
         for (Campo minas : listaMinas) {
             if (!(minas.comprobarVisible() || minas.comprobarBandera())) {
@@ -368,8 +421,8 @@ public class Juego {
                 break;
             }
         }
-        limpiarTablero = (FILAS * COLUMNAS) - listaMinas.size();
-        if (checarMinas && camposVisibles == limpiarTablero) {
+        actualizarDatos();
+        if (checarMinas && verificarCamposVisibles()) {
             sala.enviarInfo("INFOMESSAGE Han puesto banderas sobre todas las minas y descubierto todos los campos.");
             this.mostrarPuntos();
         }
@@ -391,7 +444,7 @@ public class Juego {
        Campo campo;
         for (int y = 0; y < COLUMNAS; y++) {
             for (int x = 0; x < FILAS; x++) {
-                campo = TABLERO[x][y];
+                campo = getCampo(x, y);
                 if (!campo.comprobarMina()) {
                     if (campo.comprobarBandera()) {
                         campo.ponerBanderaIncorrecta();
@@ -412,17 +465,30 @@ public class Juego {
             }
         }
     }
-
-    public void mostrarPuntos() {
-        sacarPuntaje();
-        inicio = false;
+    
+    private void pararTiempo(){
         t.stop();
+    }
+    
+    private void ordenarResultado(){
         Collections.sort(sala.getLista(), (Jugador j1, Jugador j2) -> new Integer(j2.getPuntos()).compareTo(j1.getPuntos()));
-        sala.enviarInfo("MESSAGE [Servidor] El juego ha terminado");
+    }
+    
+    private String almacenarPuntajes(){
         String algo = "";
         for (Jugador jugador : sala.getLista()) {
             algo += "Jugador " + jugador.getID() + ", Nombre: " + jugador.getNombre() + ", Puntos: " + jugador.getPuntos() + ".";
         }
+        return algo;
+    }
+
+    public void mostrarPuntos() {
+        sacarPuntaje();
+        inicio = false;
+        pararTiempo();
+        ordenarResultado();
+        sala.enviarInfo("MESSAGE [Servidor] El juego ha terminado");
+        String algo = almacenarPuntajes();
         sala.enviarInfo("PUNTOS " + algo);
         sala.reiniciarDatos();
     }

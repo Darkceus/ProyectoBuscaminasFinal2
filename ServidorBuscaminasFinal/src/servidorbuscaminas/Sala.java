@@ -100,8 +100,8 @@ public class Sala {
 
     public void enviarDatosJuego() {
         listaJugadores.forEach((jugador) -> {
-            jugador.getPW().println("DATOS " + Juego.FILAS + "," + Juego.COLUMNAS + "," + Juego.TAM_ALTO + "," + Juego.TAM_ANCHO
-                    + ","  + Juego.NUMERO_MINAS + "," + jugador.getID() + "," + this.getAdmin().getID());
+            jugador.getPW().println("DATOS " + juego.getFILAS() + "," + juego.getCOLUMNAS() + "," + juego.getTAM_ALTO() + "," + juego.getTAM_ANCHO()
+                    + ","  + juego.getNUMERO_MINAS() + "," + jugador.getID() + "," + this.getAdmin().getID());
         });
     }
     
@@ -165,7 +165,7 @@ public class Sala {
     private void reiniciarJugadores() {
         this.listaJugadores.forEach((jugador) -> {
             jugador.reiniciarClic();
-            jugador.setEstado(Jugador.ESTADO_JUGANDO);
+            jugador.reiniciarEstado();
             jugador.reiniciarPuntos();
         });
     }

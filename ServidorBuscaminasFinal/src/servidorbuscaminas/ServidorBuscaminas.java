@@ -43,32 +43,33 @@ public class ServidorBuscaminas {
     }
     
     private boolean validaciones(){
-        if (Juego.FILAS != Juego.COLUMNAS) {
+        Juego juego = new Juego();
+        if (juego.getFILAS() != juego.getCOLUMNAS()) {
             System.out.println("El número de Filas y Columnas deben ser iguales.");
             JOptionPane.showMessageDialog(null, "El número de Filas y Columnas deben ser iguales.");
             return false;
         }
-        if ((Juego.FILAS > 30 || Juego.FILAS < 10) || (Juego.COLUMNAS > 30 || Juego.COLUMNAS < 10)) {
+        if ((juego.getFILAS() > 30 || juego.getFILAS() < 10) || (juego.getCOLUMNAS() > 30 || juego.getCOLUMNAS() < 10)) {
             System.out.println("El número de Filas y Columnas deben ser menores o iguales a 30 y mayores a 10.");
             JOptionPane.showMessageDialog(null, "El número de Filas y Columnas deben ser menores o iguales a 30 y mayores a 10.");
             return false;
         }
-        if (Juego.TAM_ALTO != Juego.TAM_ANCHO) {
+        if (juego.getTAM_ALTO() != juego.getTAM_ANCHO()) {
             System.out.println("El tamaño de los campos deben ser iguales.");
             JOptionPane.showMessageDialog(null, "El tamaño de los campos deben ser iguales.");
             return false;
         }
-        if ((Juego.TAM_ALTO > 20 || Juego.TAM_ALTO < 10) || (Juego.TAM_ANCHO > 20 || Juego.TAM_ANCHO < 10)) {
+        if ((juego.getTAM_ALTO() > 20 || juego.getTAM_ALTO() < 10) || (juego.getTAM_ANCHO() > 20 || juego.getTAM_ANCHO() < 10)) {
             System.out.println("El tamaño de los campos deben ser menores o iguales a 20 y mayores a 3.");
             JOptionPane.showMessageDialog(null, "El tamaño de los campos deben ser menores o iguales a 20 y mayores a 3.");
             return false;
         }
-        /*if ((Juego.FILAS < Juego.TAM_ANCHO) || (Juego.COLUMNAS < Juego.TAM_ALTO)) {
+        /*if ((juego.getFILAS() < juego.getTAM_ANCHO()) || (juego.getCOLUMNAS() < juego.getTAM_ALTO())) {
             System.out.println("El tamaño de las filas o columnas debe ser mayor o igual al tamaño de los campos.");
             JOptionPane.showMessageDialog(null, "El tamaño de las filas o columnas debe ser mayor o igual al tamaño de los campos.");
             return false;
         }*/
-        if (Juego.NUMERO_MINAS > (Juego.FILAS * Juego.COLUMNAS)) {
+        if (juego.getNUMERO_MINAS() > (juego.getFILAS() * juego.getCOLUMNAS())) {
             System.out.println("El número de minas debe ser menor al tamaño total del tablero.");
             JOptionPane.showMessageDialog(null, "El número de minas debe ser menor al tamaño total del tablero.");
             return false;
@@ -118,6 +119,32 @@ public class ServidorBuscaminas {
             } catch (NumberFormatException e) {}
             return num2;
         }
+        
+        public boolean validarNombre() {
+            return nombre == null || nombre.isEmpty() || nombre.equals("") || !nombre.matches(PATRON_NOMBRE) || nombre.indexOf(' ') >= 0 || nombre.startsWith("/") || nombre.length() > 15;
+        }
+        
+        public boolean agregarJugadorASala() {
+            this.jugador = new Jugador(nombre, Escritor);
+            for (Sala sala2 : SALAS.values()) {
+                if (sala2.checarDisponibilidad()) {
+                    if (!sala2.checarJugador(this.jugador)) {
+                        this.sala = sala2;
+                        this.sala.agregarJugador(this.jugador);
+                        this.jugador.getPW().println("INFOMESSAGE Bienvenido " + nombre);
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        
+        public void crearSala() {
+            int id = SALAS.size() + 1;
+            this.sala = new Sala(id, this.jugador);
+            SALAS.put(id, this.sala);
+            this.jugador.getPW().println("INFOMESSAGE Bienvenido " + nombre + ", eres el primero en entrar");
+        }
 
         @Override
         public void run() {
@@ -127,7 +154,7 @@ public class ServidorBuscaminas {
                 while (true) {
                     Escritor.println("NOMBREDEENVIO");
                     nombre = Entrada.nextLine();
-                    if (nombre == null || nombre.isEmpty() || nombre.equals("") || !nombre.matches(PATRON_NOMBRE) || nombre.indexOf(' ') >= 0 || nombre.startsWith("/") || nombre.length() > 15) {
+                    if (validarNombre()) {
                         continue;
                     }
                     if (nombre.equals("null")) {
@@ -135,24 +162,9 @@ public class ServidorBuscaminas {
                         return;
                     }
                     synchronized (SALAS) {
-                        boolean entro = false;
-                        this.jugador = new Jugador(nombre, Escritor);
-                        for (Sala sala2 : SALAS.values()) {
-                            if (sala2.checarDisponibilidad()) {
-                                if (!sala2.checarJugador(this.jugador)) {
-                                    this.sala = sala2;
-                                    this.sala.agregarJugador(this.jugador);
-                                    this.jugador.getPW().println("INFOMESSAGE Bienvenido " + nombre);
-                                    entro = true;
-                                    break;
-                                }
-                            }
-                        }
+                        boolean entro = agregarJugadorASala();
                         if (!entro) {
-                            int id = SALAS.size() + 1;
-                            this.sala = new Sala(id, this.jugador);
-                            SALAS.put(id, this.sala);
-                            this.jugador.getPW().println("INFOMESSAGE Bienvenido " + nombre + ", eres el primero en entrar");
+                            crearSala();
                         }
                         break;
                     }
@@ -163,11 +175,7 @@ public class ServidorBuscaminas {
                 while (true) {
                     synchronized (this) {
                         String input;
-                        try {
-                            input = Entrada.nextLine();
-                        } catch (Exception e) {
-                            return;
-                        }
+                        try {input = Entrada.nextLine();} catch (Exception e) {return;}
                         if (input != null && !input.equals("") && !input.isEmpty()) {
                             int espacio = input.indexOf(' ');
                             boolean prueba2 = espacio >= 0 && espacio < input.length();
@@ -187,8 +195,6 @@ public class ServidorBuscaminas {
                                         sala.getJuego().gestionarBandera(jugador, convertirInt(coordenadas[0]), convertirInt(coordenadas[1]), convertirInt(coordenadas[2]));
                                     }
                                 }
-                            } else if (input.startsWith("AUMENTARMINAS")) {
-
                             } else {
                                 sala.enviarInfo("MESSAGE " + jugador.getNombre() + ": " + input);
                             }
