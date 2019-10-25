@@ -125,7 +125,7 @@ public class TableroJuego extends JPanel {
         }
     }
 
-    public void hayMina(int x, int y, int numJugador) {
+    public void colocarMina(int x, int y, int numJugador) {
         BOTONES[x][y].setIcon(IMAGENES[MINA]);
         if (numJugador == NUM_JUGADOR) {
             inicio = false;
@@ -138,7 +138,7 @@ public class TableroJuego extends JPanel {
         BOTONES[x][y].setIcon(IMAGENES[NO_MINA]);
     }
 
-    public void hayMina2(int x, int y) {
+    public void colocarMina2(int x, int y) {
         BOTONES[x][y].setIcon(IMAGENES[MINA]);
     }
 

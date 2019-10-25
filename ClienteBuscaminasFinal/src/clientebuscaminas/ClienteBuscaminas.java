@@ -143,14 +143,14 @@ public class ClienteBuscaminas extends JFrame {
                 } else if (linea.startsWith("2HAYMINA ")) {
                     tam = linea.substring(9).split(",");
                     if (tam.length == 2) {
-                        juego.hayMina2(convertirInt(tam[0]), convertirInt(tam[1]));
+                        juego.colocarMina2(convertirInt(tam[0]), convertirInt(tam[1]));
                     } else {
                         getMensaje("Error al poner mina");
                     }
                 } else if (linea.startsWith("HAYMINA ")) {
                     tam = linea.substring(8).split(",");
                     if (tam.length == 3) {
-                        juego.hayMina(convertirInt(tam[0]), convertirInt(tam[1]), convertirInt(tam[2]));
+                        juego.colocarMina(convertirInt(tam[0]), convertirInt(tam[1]), convertirInt(tam[2]));
                     } else {
                         getMensaje("Error al poner mina");
                     }
